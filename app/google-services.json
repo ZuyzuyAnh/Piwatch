@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "595895124338",
+    "project_id": "piwatch-6fdd8",
+    "storage_bucket": "piwatch-6fdd8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:595895124338:android:8d3ae3cb61a0e552b6ddeb",
+        "android_client_info": {
+          "package_name": "com.example.piwatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "595895124338-673ak8psqp30mgodcr4h5dnpml84da10.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.piwatch",
+            "certificate_hash": "10b08c27ed6bff98dc7c7a5bfa6544dc4b25826d"
+          }
+        },
+        {
+          "client_id": "595895124338-qrll158l394mch5jfoho0sdgpuk2k1hi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGMnZN0qoUGD6v2gvOmJ6ELg-ACmt3oYg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "595895124338-qrll158l394mch5jfoho0sdgpuk2k1hi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

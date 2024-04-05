@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">PiWatch</string>
+    <string name="create_account">Create an account</string>
+    <string name="login">Login</string>
+    <string name="google">Sign in with Google</string>
+    <string name="singup">Sign up</string>
+    <string name="welcome">Welcome to PiWatch</string>
+    <string name="join_us">Join us now</string>
+    <string name = "user_name">Username</string>
+    <string name = "password">Password</string>
+    <string name = "password_confirm">Confirm your password</string>
+    <string name = "email">Email</string>
+    <string name="forgot_password">Forgot your password?</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="confirm_password">Confirm your password</string>
+    <string name="blank_confirm_password">Please confirm your password</string>
+    <string name = "blank_email">Please enter your email</string>
+    <string name = "blank_username">Please enter your Username</string>
+    <string name = "wrong_email">Please enter validate email</string>
+    <string name = "blank_password">Please enter your password</string>
+    <string name = "weak_password">The password needs at least 1 letter and 1 digit</string>
+    <string name = "short_password">The password needs at least 8 characters</string>
+    <string name = "wrong_password_confirm">The passwords don\'t match</string>
+    <string name = "send_password_reset">Forgot your password?</string>
+    <string name = "send_password_reset_detail">Enter the email address with your account, we will send an email to reset your password</string>
+    <string name = "send_email">Send email</string>
+</resources>
