@@ -50,7 +50,7 @@ class PassWordResetViewModel @Inject constructor(
                 }
                 is  Resource.Error -> {
                     _sendResetFlow.value = Resource.Error(
-                        message = result.message.toString()
+                        message = result.message!!
                     )
                 }
 

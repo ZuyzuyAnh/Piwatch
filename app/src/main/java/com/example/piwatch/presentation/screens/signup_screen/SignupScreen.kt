@@ -1,4 +1,3 @@
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -6,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -22,21 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.piwatch.presentation.components.PiWatchLogo
 import com.example.piwatch.R
 import com.example.piwatch.presentation.components.HeadingTextComponent
 import com.example.piwatch.presentation.components.LoginButton
 import com.example.piwatch.presentation.components.MyIconPasswordField
 import com.example.piwatch.presentation.components.MyIconTextField
+import com.example.piwatch.presentation.components.PiWatchLogo
 import com.example.piwatch.presentation.components.SmallMessage
 import com.example.piwatch.presentation.components.ValidateError
 import com.example.piwatch.presentation.screens.signup_screen.SignupFormEvent
 import com.example.piwatch.presentation.screens.signup_screen.SignupViewModel
-import com.example.piwatch.ui.theme.PiWatchTheme
-import com.example.piwatch.util.Resource
 
 
 @Composable
@@ -45,138 +42,138 @@ fun SignUpScreen(
     navigateToLogin: () -> Unit,
     viewModel: SignupViewModel
 ) {
-    var context = LocalContext.current
-    var state = viewModel.state.collectAsState().value
+    val state = viewModel.state.collectAsState().value
+    val context = LocalContext.current
     Surface(
         color = MaterialTheme.colorScheme.background,
     ) {
-        if(state.isLoading){
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                CircularProgressIndicator()
-            }
-        }else{
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(30.dp),
-            ){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(30.dp),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ){
-                        PiWatchLogo()
-                        HeadingTextComponent(text = stringResource(id = R.string.create_account))
+                    PiWatchLogo()
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    HeadingTextComponent(
+                        text = stringResource(id = R.string.create_account),
+                        weight = FontWeight.ExtraBold
+                    )
+                    MyIconTextField(
+                        label = stringResource(id = R.string.user_name),
+                        Icons.Outlined.Person,
+                        onTextChange = {
+                            viewModel.onEvent(SignupFormEvent.UsernameChanged(it))
+                        },
+                        value = state.userName,
+                        isError = state.userNameError != null
+                    )
+                    if (state.userNameError != null) {
+                        ValidateError(
+                            stringResource(id = state.userNameError)
+                        )
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(4f),
-                        verticalArrangement = Arrangement.SpaceAround
-                    ){
-                        MyIconTextField(
-                            label = stringResource(id = R.string.user_name),
-                            Icons.Outlined.Person,
-                            onTextChange = {
-                                viewModel.onEvent(SignupFormEvent.UsernameChanged(it))
-                            },
-                            value = state.userName,
-                            isError = state.userNameError != null
+                    MyIconTextField(
+                        label = stringResource(id = R.string.email),
+                        Icons.Outlined.Email,
+                        onTextChange = {
+                            viewModel.onEvent(SignupFormEvent.EmailChanged(it))
+                        },
+                        value = state.email,
+                        isError = state.emailError != null
+                    )
+                    if (state.emailError != null) {
+                        ValidateError(
+                            stringResource(id = state.emailError)
                         )
-                        if(state.userNameError != null){
-                            ValidateError(
-                                state.userNameError!!
-                            )
-                        }
-                        MyIconTextField(
-                            label = stringResource(id = R.string.email),
-                            Icons.Outlined.Email,
-                            onTextChange = {
-                                viewModel.onEvent(SignupFormEvent.EmailChanged(it))
-                            },
-                            value = state.email,
-                            isError = state.emailError != null
-                        )
-                        if(state.emailError != null){
-                            ValidateError(
-                                state.emailError!!
-                            )
-                        }
-                        MyIconPasswordField(
-                            label = stringResource(id = R.string.password),
-                            Icons.Outlined.Lock,
-                            onTextChange = {
-                                viewModel?.onEvent(SignupFormEvent.PasswordChanged(it))
-                            },
-                            value = state.password,
-                            isError = state.passwordError != null
-                        )
-                        if(state.passwordError != null){
-                            ValidateError(
-                                state.passwordError!!
-                            )
-                        }
-                        MyIconPasswordField(
-                            label = stringResource(id = R.string.password_confirm),
-                            Icons.Outlined.Lock,
-                            onTextChange = {
-                                viewModel.onEvent(SignupFormEvent.PasswordConfirmChanged(state.password,it))
-                            },
-                            value = state.passwordConfrim,
-                            isError = state.passwordConfrimError != null
-                        )
-                        if(state.passwordConfrimError != null){
-                            ValidateError(
-                                state.passwordConfrimError!!
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.End,
-                        ) {
-                            SmallMessage(
-                                text = stringResource(id = R.string.have_account),
-                                {navigateToLogin()}
-                            )
-                        }
                     }
-                    Column (
+                    MyIconPasswordField(
+                        label = stringResource(id = R.string.password),
+                        Icons.Outlined.Lock,
+                        onTextChange = {
+                            viewModel.onEvent(SignupFormEvent.PasswordChanged(it))
+                        },
+                        value = state.password,
+                        isError = state.passwordError != null
+                    )
+                    if (state.passwordError != null) {
+                        ValidateError(
+                            stringResource(id = state.passwordError)
+                        )
+                    }
+                    MyIconPasswordField(
+                        label = stringResource(id = R.string.password_confirm),
+                        Icons.Outlined.Lock,
+                        onTextChange = {
+                            viewModel.onEvent(
+                                SignupFormEvent.PasswordConfirmChanged(
+                                    state.password,
+                                    it
+                                )
+                            )
+                        },
+                        value = state.passwordConfrim,
+                        isError = state.passwordConfrimError != null
+                    )
+                    if (state.passwordConfrimError != null) {
+                        ValidateError(
+                            stringResource(id = state.passwordConfrimError)
+                        )
+                    }
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(0.5f),
-                        verticalArrangement = Arrangement.Top
-                    ){
-                        LoginButton(
-                            text = stringResource(R.string.singup),
-                            MaterialTheme.colorScheme.primary,
-                            { viewModel.onEvent(SignupFormEvent.Submit) }
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        SmallMessage(
+                            text = stringResource(id = R.string.have_account),
+                            { navigateToLogin() }
                         )
-                        Spacer(modifier = Modifier.heightIn(20.dp))
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    if (!state.isSignUpSucess && state.errorToast != null) {
+                        ValidateError(text = state.errorToast)
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    LoginButton(
+                        text = stringResource(R.string.singup),
+                        MaterialTheme.colorScheme.primary
+                    ) {
+                        viewModel.onEvent(SignupFormEvent.Submit)
+                    }
+                    Spacer(modifier = Modifier.heightIn(20.dp))
+                }
+                if (state.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
                 }
             }
         }
     }
-    LaunchedEffect(key1 = state){
+    LaunchedEffect(state.isSignUpSucess) {
         if(state.isSignUpSucess){
             navigateToHomeScreen()
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignupScreenPrv(){
-    PiWatchTheme {
-        //SignUpScreen({}, null)
     }
 }

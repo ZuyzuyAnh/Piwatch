@@ -1,23 +1,17 @@
 package com.example.piwatch.presentation.screens.signup_screen
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.piwatch.data.repositoryImpl.AuthEvent
-import com.example.piwatch.domain.usecase.login_usecase.SignupUsecase
+import com.example.piwatch.R
+import com.example.piwatch.domain.usecase.firestore_usecase.AddUserPlayListsUseCase
 import com.example.piwatch.domain.usecase.form_validate.ValidateEmail
 import com.example.piwatch.domain.usecase.form_validate.ValidatePassword
 import com.example.piwatch.domain.usecase.form_validate.ValidatePasswordConfirm
 import com.example.piwatch.domain.usecase.form_validate.ValidateUsername
-import com.example.piwatch.domain.usecase.login_usecase.GetUserUsecase
-import com.example.piwatch.domain.usecase.user_playlist_usecase.AddUserPlayListsUseCase
-import com.example.piwatch.presentation.screens.login_screen.LoginState
+import com.example.piwatch.domain.usecase.login_usecase.SignupUsecase
+import com.example.piwatch.domain.usecase.movie_usecase.CreateSessionUseCase
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +27,8 @@ class SignupViewModel @Inject constructor(
     private val validatePassword: ValidatePassword,
     private val validatePasswordConfirm: ValidatePasswordConfirm,
     private val addUserPlayListsUseCase: AddUserPlayListsUseCase,
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val createSessionUseCase: CreateSessionUseCase
 ): ViewModel() {
 
 
@@ -42,7 +37,13 @@ class SignupViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private var userId: String? = null
+    private var sessionId: String? = null
 
+    init {
+        viewModelScope.launch {
+            createSession()
+        }
+    }
     fun onEvent(event: SignupFormEvent){
         when(event){
             is SignupFormEvent.UsernameChanged -> {
@@ -76,7 +77,8 @@ class SignupViewModel @Inject constructor(
                         emailError = emailResult.errorMessage,
                         userNameError = userNameResult.errorMessage,
                         passwordError = passwordResult.errorMessage,
-                        passwordConfrimError = passwordConfrimResult.errorMessage
+                        passwordConfrimError = passwordConfrimResult.errorMessage,
+                        errorToast = null
                     )
                     return
 
@@ -100,13 +102,38 @@ class SignupViewModel @Inject constructor(
                 is Resource.Success -> {
                     firebaseAuth.currentUser?.uid?.let {
                         userId = it
-                        // Sử dụng userId ở đây theo nhu cầu của bạn
                     }
-                    _state.value = _state.value.copy(isSignUpSucess = true, isLoading = true)
                     viewModelScope.launch(IO) {
-                        addUserPlayListsUseCase.execute(userId!!)
+                        addUserPlayListsUseCase.execute(userId!!, sessionId!!)
                     }
-                    _state.value = _state.value.copy(isSignUpSucess = true, isLoading = false)
+                    _state.value = _state.value.copy(
+                        isSignUpSucess = true,
+                        isLoading = false,
+                        toast = R.string.signup_success
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(
+                        isLoading = true
+                    )
+                }
+
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(
+                        errorToast = result.message!!,
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
+
+    suspend fun createSession() {
+        createSessionUseCase.execute().collect { result ->
+            when (result) {
+                is Resource.Success -> {
+                    sessionId = result.result
                 }
                 is Resource.Loading -> {
 
@@ -117,4 +144,5 @@ class SignupViewModel @Inject constructor(
             }
         }
     }
+
 }

@@ -1,21 +1,21 @@
 package com.example.piwatch.presentation.screens.movie_detail
 
-import com.example.piwatch.data.remote.model.movieDetail.Genre
 import com.example.piwatch.domain.model.Movie
+import com.example.piwatch.domain.model.MovieDetail
+import com.example.piwatch.domain.model.PlayList
 
 data class MovieDetailState(
-    val backdropPath: String? = null,
-    val genres: List<String> = emptyList(),
-    val id: Int? = null,
-    val imdbId: String? = null,
-    val overview: String? = null,
-    val posterPath: String? = null,
-    val releaseDate: String? = null,
-    val status: String? = null,
-    val title: String? = null,
-    val voteAverage: Double? = null,
+    val movie: MovieDetail = MovieDetail(),
+
     val similarMovies: List<Movie> = emptyList(),
     val trailerKey: String? = null,
+
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val isAddingLoading: Boolean = false,
+
+    val playList: List<PlayList> = emptyList(),
+    val isRatingSuccess: Boolean = false,
+    val isAddToPlaylistSuccess: Boolean = false,
+    val shouldShowToast: Boolean = false,
+    val message: Int = 0
 )

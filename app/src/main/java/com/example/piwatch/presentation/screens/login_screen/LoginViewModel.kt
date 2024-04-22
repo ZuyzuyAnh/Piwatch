@@ -1,25 +1,17 @@
 package com.example.piwatch.presentation.screens.login_screen
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.piwatch.data.repositoryImpl.AuthEvent
-import com.example.piwatch.domain.usecase.login_usecase.GetUserUsecase
-import com.example.piwatch.domain.usecase.login_usecase.GoogleSignInUseCase
-import com.example.piwatch.domain.usecase.login_usecase.LoginUsecase
 import com.example.piwatch.domain.usecase.form_validate.ValidateEmail
 import com.example.piwatch.domain.usecase.form_validate.ValidatePassword
-import com.example.piwatch.domain.usecase.user_playlist_usecase.AddUserPlayListsUseCase
+import com.example.piwatch.domain.usecase.login_usecase.GoogleSignInUseCase
+import com.example.piwatch.domain.usecase.login_usecase.LoginUsecase
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,29 +66,28 @@ class LoginViewModel @Inject constructor(
                 }
             }
             is LoginEvent.LoginWithGoogle -> {
-                Log.d("loginState", "${_state.value}")
-
                 viewModelScope.launch {
-                        googleSignIn(event.credential)
+                    googleSignIn(event.credential)
                 }
             }
-            else -> {}
         }
-
-
     }
 
     suspend fun login(email: String, password: String) = viewModelScope.launch {
         loginUsecase.execute(email, password).collect{result ->
             when(result){
                 is Resource.Success -> {
-                    Log.d("resultLogin", "$result")
-                    _state.value = _state.value.copy(loginError = null, isLoginSuccess = true)
+                    _state.value = _state.value.copy(
+                        loginError = null,
+                        isLoginSuccess = true,
+                        isLoading = false
+                    )
                 }
                 is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
                 }
                 is Resource.Error -> {
-                    _state.value = _state.value.copy(loginError = result.message, )
+                    _state.value = _state.value.copy(loginError = result.message, isLoading = false)
                 }
             }
 
@@ -107,11 +98,14 @@ class LoginViewModel @Inject constructor(
         googleSignInUseCase.execute(credential).collect{result ->
             when(result){
                 is Resource.Success -> {
+                    Log.d("loginState", "$result")
                     _state.value = _state.value.copy(loginError = null, isLoginSuccess = true)
                 }
                 is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true)
                 }
                 is Resource.Error -> {
+                    Log.d("loginState", "$result")
                     _state.value = _state.value.copy(loginError = result.message, )
                 }
             }

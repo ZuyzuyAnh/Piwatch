@@ -1,43 +1,31 @@
 package com.example.piwatch.presentation.components
 
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.Icon
-import android.widget.RatingBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,12 +33,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -58,21 +43,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
 import com.example.piwatch.R
-import com.example.piwatch.data.remote.TMDBService
-import com.example.piwatch.domain.model.Movie
-import com.example.piwatch.ui.theme.PiWatchTheme
-import kotlin.math.ceil
-import kotlin.math.floor
 
 @Composable
 fun TextComponent(
     text: String,
-    color: Color = MaterialTheme.colorScheme.onBackground
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    weight: FontWeight = FontWeight.Medium,
 ) {
     Text(
         text = text,
@@ -80,22 +57,26 @@ fun TextComponent(
         style = MaterialTheme.typography.bodyLarge,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        color = color
+        color = color,
+        fontWeight = weight
     )
 }
 
 @Composable
 fun ContentTextComponent(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = 1,
+    color: Color = MaterialTheme.colorScheme.onBackground
 ) {
         Text(
             text = text,
             modifier = modifier,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis,
+            color = color
         )
 }
 @Composable
@@ -119,7 +100,8 @@ fun ParagraphContentTextComponent(
 fun HeadingTextComponent(
     text: String,
     modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    weight: FontWeight = FontWeight.Medium
 ) {
     Text(
         text = text,
@@ -127,7 +109,8 @@ fun HeadingTextComponent(
         style = MaterialTheme.typography.titleLarge,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        textAlign = textAlign
+        textAlign = textAlign,
+        fontWeight = weight
     )
 }
 @Composable
@@ -156,19 +139,24 @@ fun SecondaryTextComponent(
 @Composable
 fun Tag(
     text: String,
-    navigateToTag: () -> Unit
+    navigateToTag: () -> Unit,
+    color: Color,
+    textColor: Color
 ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
-            .clickable { navigateToTag }
-            .background(MaterialTheme.colorScheme.secondary)
+            .clickable {
+                navigateToTag()
+            }
+            .background(color)
     ){
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.padding(8.dp)
+            color = textColor,
+            modifier = Modifier.padding(8.dp),
+            fontWeight = FontWeight.ExtraBold
         )
     }
 }
@@ -232,11 +220,12 @@ fun iconWithText(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-       androidx.compose.material3.Icon(
+        Icon(
            imageVector = icon,
            contentDescription = null,
            modifier = Modifier.weight(0.5f)
        )
+        Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = text,
             modifier = Modifier.weight(2f),
@@ -248,7 +237,8 @@ fun iconWithText(
 fun MyTextField(
     label: String,
     onValueChange: (String) -> Unit,
-    value: String
+    value: String,
+    isError: Boolean
 ) {
     OutlinedTextField(
         label = { Text(label) },
@@ -256,7 +246,11 @@ fun MyTextField(
         onValueChange = {
             onValueChange(it)},
         keyboardOptions = KeyboardOptions.Default,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        isError = isError,
+        textStyle = TextStyle(
+            fontWeight = FontWeight.Bold
+        )
     )
 }
 
@@ -276,9 +270,10 @@ fun MyIconTextField(
         keyboardOptions = KeyboardOptions.Default,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp),
+            .padding(vertical = 5.dp),
         shape = MaterialTheme.shapes.medium,
-        isError = isError
+        isError = isError,
+        textStyle = MaterialTheme.typography.bodySmall,
     )
 }
 
@@ -298,7 +293,7 @@ fun MyIconPasswordField(
         keyboardOptions = KeyboardOptions.Default,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp),
+            .padding(vertical = 5.dp),
         shape = MaterialTheme.shapes.medium,
         isError = isError,
         textStyle = MaterialTheme.typography.titleSmall
@@ -319,7 +314,8 @@ fun LoginButton(
         contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(
             color
-        )
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Text(
             text = text,
@@ -338,11 +334,11 @@ fun LoginButtonWithIcon(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth(),
-        contentPadding = PaddingValues(10.dp),
+        contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(
             color
         ),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -421,15 +417,40 @@ fun Loading(){
 
 @Composable
 fun ValidateError(
-    text: Int
+    text: String
 ) {
     Text(
-        text = stringResource(id = text),
+        text = text,
         color = MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.titleSmall
     )
 }
 
+@Composable
+fun AddButton(
+    onClick: () -> Unit,
+    color: Color = MaterialTheme.colorScheme.onBackground
+) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .padding(20.dp)
+            .border(1.dp, color, shape = RoundedCornerShape(5.dp))
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            androidx.compose.material3.Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+            )
+        }
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun PiwatchLogoPrv() {

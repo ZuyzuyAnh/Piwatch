@@ -16,15 +16,15 @@ data class MovieListDto(
 )
 
 fun MovieListDto.toMovies(
-    isPopular: Int = 0,
-    isTopRated: Int = 0,
-    isUpcoming: Int = 0
+    isPopular: Boolean = false,
+    isTopRated: Boolean = false,
+    isUpcoming: Boolean = false
 ): List<Movie>{
     val result = mutableListOf<Movie>()
     this.results.map {
         result.add(
             Movie(
-                id = it.id,
+                id = it.id.toLong(),
                 posterPath = it.posterPath,
                 title = it.title,
                 voteAverage = it.voteAverage,
