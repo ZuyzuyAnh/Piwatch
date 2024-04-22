@@ -15,4 +15,7 @@ data class SignUpFormState(
 
     val isSignUpSucess: Boolean = false,
     val isLoading: Boolean = false,
+
+    val toast: Int? = null,
+    val errorToast: String? = null,
 )

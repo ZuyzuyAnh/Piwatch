@@ -1,6 +1,5 @@
 package com.example.piwatch.domain.repository
 
-import com.example.piwatch.data.repositoryImpl.AuthEvent
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
@@ -9,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
 
-    suspend fun getCurrentUser(): Flow<AuthEvent>
+    suspend fun getCurrentUser(): FirebaseUser?
 
     suspend fun loginnUser(email: String, password: String): Flow<Resource<AuthResult>>
 
@@ -20,4 +19,6 @@ interface AuthRepository {
     suspend fun forgotpassword(email: String): Flow<Resource<Void>>
 
     suspend fun logout()
+
+
 }

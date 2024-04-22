@@ -1,17 +1,13 @@
 package com.example.piwatch.presentation.screens.search_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.domain.usecase.movie_usecase.GetSearchedMoviesUseCase
 import com.example.piwatch.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -72,7 +68,6 @@ class SearchScreenViewModel @Inject constructor(
     suspend fun getSearchedMovies(query: String, page: Int = 1){
         viewModelScope.launch(IO) {
             getSearchedMoviesUseCase.execute(query, page).collect{result ->
-                Log.d("search", "${result.message}\n$page")
                 when(result){
                     is Resource.Success -> {
                         result.result?.let {

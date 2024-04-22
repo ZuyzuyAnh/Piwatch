@@ -1,52 +1,48 @@
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.piwatch.data.repositoryImpl.AuthEvent
 import com.example.piwatch.presentation.Navigation.AppRoute
-import com.example.piwatch.presentation.screens.auth_state.AuthViewModel
 import com.example.piwatch.presentation.screens.home_screen.HomeScreen
 import com.example.piwatch.presentation.screens.home_screen.HomeViewModel
+import com.example.piwatch.presentation.screens.library_screen.LibraryScreen
 import com.example.piwatch.presentation.screens.library_screen.LibraryViewModel
-import com.example.piwatch.presentation.screens.library_screen.libraryScreen
 import com.example.piwatch.presentation.screens.login_screen.LoginScreen
 import com.example.piwatch.presentation.screens.login_screen.LoginViewModel
 import com.example.piwatch.presentation.screens.movie_detail.MovieDetailScreen
 import com.example.piwatch.presentation.screens.movie_detail.MovieDetailViewModel
+import com.example.piwatch.presentation.screens.movie_with_genre.MovieWithGenreViewModel
+import com.example.piwatch.presentation.screens.movie_with_genre.movieWithGenre
 import com.example.piwatch.presentation.screens.password_reset.PassWordResetViewModel
 import com.example.piwatch.presentation.screens.password_reset.PasswordResetScreen
+import com.example.piwatch.presentation.screens.playlist_screen.PlayList
+import com.example.piwatch.presentation.screens.playlist_screen.PlaylistViewModel
 import com.example.piwatch.presentation.screens.search_screen.SearchScreenViewModel
 import com.example.piwatch.presentation.screens.search_screen.searchScreen
 import com.example.piwatch.presentation.screens.signup_screen.SignupViewModel
+import com.example.piwatch.presentation.screens.welcome_screen.WelcomeScreen
 
 @Composable
 fun AppNavHost(
-    viewModel: AuthViewModel,
     navController: NavHostController,
+    startDestination: String
 ) {
-    Log.d("AppNavHostreInit", "")
-    val authState by viewModel.authState.collectAsState()
     val homeViewModel = hiltViewModel<HomeViewModel>()
-    val libraryViewModel = hiltViewModel<LibraryViewModel>()
-    val loginViewModel = hiltViewModel<LoginViewModel>()
     val passwordResetViewModel = hiltViewModel<PassWordResetViewModel>()
     val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
-    val signUpViewModel = hiltViewModel<SignupViewModel>()
+
     NavHost(
         navController = navController,
-        startDestination = if(authState is AuthEvent.LogedIn) AppRoute.HOME.route else AppRoute.LOGIN.route
+        startDestination = startDestination
     ){
         composable(
             route = AppRoute.LOGIN.route
         ){
+            val loginViewModel = hiltViewModel<LoginViewModel>()
             LoginScreen(
                 navigateToSignUp = {
                     navController.navigate(AppRoute.SIGNUP.route)
@@ -55,7 +51,11 @@ fun AppNavHost(
                     navController.navigate(AppRoute.RESET_PASSWORD.route)
                 },
                 navigateToHomeScreen = {
-                    navController.navigate(AppRoute.HOME.route)
+                    navController.navigate(AppRoute.HOME.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
                 },
                 viewModel = loginViewModel
             )
@@ -63,6 +63,7 @@ fun AppNavHost(
         composable(
             route = AppRoute.SIGNUP.route
         ){
+            val signUpViewModel = hiltViewModel<SignupViewModel>()
             SignUpScreen(
                 navigateToLogin = {
                     navController.navigate(AppRoute.LOGIN.route)
@@ -114,12 +115,30 @@ fun AppNavHost(
         composable(
             route = AppRoute.LIBRARY.route
         ){
-            libraryScreen(
+            val libraryViewModel = hiltViewModel<LibraryViewModel>()
+            LibraryScreen(
                 navigateToSearchScreen = {
-                    navController.navigate("${AppRoute.SEARCH.route}")
+                    navController.navigate(AppRoute.SEARCH.route)
                 },
                 navigateToHomeScreen = {
-                    navController.navigate("${AppRoute.HOME.route}")
+                    navController.navigate(AppRoute.HOME.route)
+                },
+                navigateToMovieDetail = { movieId ->
+                    navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")
+                },
+                navigateToPlaylist = { playlistId, userId ->
+                    navController.navigate("${AppRoute.PLAYLIST.route}/$userId/${playlistId}")
+                },
+                navigateToMovieWithGenre = { genreId ->
+                    navController.navigate("${AppRoute.MOVIE_WITH_GENRE.route}/$genreId")
+                },
+                navigateToLogin = {
+                    Log.d("navigate To Login", " ")
+                    navController.navigate(AppRoute.LOGIN.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
                 },
                 viewModel = libraryViewModel
             )
@@ -133,7 +152,58 @@ fun AppNavHost(
                viewModel = movieDetailViewModel,
                navigateToMovieDetail = {movieId ->
                    navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")},
-           )
+                navigateToMovieWithGenre = { genreId ->
+                    navController.navigate("${AppRoute.MOVIE_WITH_GENRE.route}/$genreId")
+                },
+                navigateToSearchScreen = {
+                    navController.navigate(AppRoute.SEARCH.route)
+                },
+                navigateToHomeScreen = {
+                    navController.navigate(AppRoute.HOME.route)
+                },
+                navigateToLibraryScreen = {
+                    navController.navigate("${AppRoute.LIBRARY.route}")
+                },
+            )
+        }
+        composable(
+            route = AppRoute.PLAYLIST.route + "/{user_id}" + "/{playlist_id}",
+            arguments = listOf(navArgument("user_id") { type = NavType.StringType },
+                navArgument("playlist_id") { type = NavType.IntType }
+            )
+        ) {
+            val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+            PlayList(
+                navigateToLibrary = { navController.navigate(AppRoute.LIBRARY.route) },
+                navigateToMovieDetail = { movieId ->
+                    navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")
+                },
+                viewModel = playlistViewModel
+            )
+        }
+        composable(
+            route = AppRoute.MOVIE_WITH_GENRE.route + "/{genre_id}",
+            arguments = listOf(navArgument("genre_id") {
+                type = NavType.IntType
+            })
+        ) {
+            val movieWithGenreViewModel = hiltViewModel<MovieWithGenreViewModel>()
+            movieWithGenre(
+                navigateToMovieDetail = { movieId ->
+                    navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")
+                },
+                viewModel = movieWithGenreViewModel
+            )
+        }
+        composable(
+            route = AppRoute.WELCOME.route
+        ) {
+            WelcomeScreen(
+                navigateToLogin = {
+                    navController.popBackStack()
+                    navController.navigate(AppRoute.LOGIN.route)
+                }
+            )
         }
     }
 }

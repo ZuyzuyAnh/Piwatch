@@ -1,7 +1,9 @@
-package com.example.piwatch.di
+package com.example.piwatch.di.modules
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
+import com.example.piwatch.data.DataStoreRepository
 import com.example.piwatch.data.local.MovieDatabase
 import com.example.piwatch.data.remote.TMDBService
 import com.example.piwatch.data.repositoryImpl.AuthRepositoryImpl
@@ -17,6 +19,7 @@ import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -48,13 +51,14 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideTMDBService(): TMDBService{
+    fun provideMovieRemoteService(): TMDBService {
         return Retrofit.Builder()
             .baseUrl(TMDBService.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TMDBService::class.java)
     }
+
 
     @Singleton
     @Provides
@@ -73,6 +77,9 @@ class AppModule {
         movieDb: MovieDatabase
     ): MovieRepository = MoviesRespositoryImpl(tmdbService, movieDb)
 
-
-
+    @Provides
+    @Singleton
+    fun provideDataStoreRepository(
+        @ApplicationContext context: Context
+    ) = DataStoreRepository(context = context)
 }

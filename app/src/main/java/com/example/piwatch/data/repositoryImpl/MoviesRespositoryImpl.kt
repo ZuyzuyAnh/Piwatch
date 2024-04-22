@@ -1,10 +1,12 @@
 package com.example.piwatch.data.repositoryImpl
 
 import android.util.Log
+import com.example.piwatch.R
 import com.example.piwatch.data.local.MovieDatabase
 import com.example.piwatch.data.local.model.toGenre
 import com.example.piwatch.data.local.model.toMovie
 import com.example.piwatch.data.remote.TMDBService
+import com.example.piwatch.data.remote.model.Rating
 import com.example.piwatch.data.remote.model.genres.toGenreEntity
 import com.example.piwatch.data.remote.model.movieDetail.toMovieDetail
 import com.example.piwatch.data.remote.model.movieList.toMovies
@@ -17,14 +19,12 @@ import com.example.piwatch.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.http.Query
 
 @Singleton
 class MoviesRespositoryImpl @Inject constructor(
@@ -37,7 +37,6 @@ class MoviesRespositoryImpl @Inject constructor(
 
     override suspend fun getMovieList(
     ): Flow<Resource<List<Movie>>> {
-        //Fetch data từ local database
         return flow {
             emit(Resource.Loading())
             val localMovies = withContext(IO) {
@@ -53,13 +52,13 @@ class MoviesRespositoryImpl @Inject constructor(
     override suspend fun fetchDataFromRemote() {
         val remoteMovies = try {
             val popularDeferred = CoroutineScope(Dispatchers.IO).async {
-                tmdbService.getPopularMovies().body()?.toMovies(isPopular = 1) ?: emptyList()
+                tmdbService.getPopularMovies().body()?.toMovies(isPopular = true) ?: emptyList()
             }
             val topRatedDeferred = CoroutineScope(Dispatchers.IO).async {
-                tmdbService.getTopRatedMovies().body()?.toMovies(isTopRated = 1) ?: emptyList()
+                tmdbService.getTopRatedMovies().body()?.toMovies(isTopRated = true) ?: emptyList()
             }
             val upComingDeferred = CoroutineScope(Dispatchers.IO).async {
-                tmdbService.getUpcomingMovies().body()?.toMovies(isUpcoming = 1) ?: emptyList()
+                tmdbService.getUpcomingMovies().body()?.toMovies(isUpcoming = true) ?: emptyList()
             }
 
             val popular = popularDeferred.await()
@@ -89,9 +88,10 @@ class MoviesRespositoryImpl @Inject constructor(
                 val movieDetail = tmdbService.getMovieDetails(movieId).body()?.toMovieDetail()
                 val videos = tmdbService.getMovieVideos(movieId).body()
                 movieDetail?.trailerKey = videos?.results?.get(0)?.key
+                Log.d("movieDetailRepository", "$movieDetail")
                 emit(Resource.Success(movieDetail))
             }catch (e: Exception){
-                emit(Resource.Error(e.message.toString()))
+                emit(Resource.Error(e.message!!))
             }
         }
     }
@@ -103,7 +103,7 @@ class MoviesRespositoryImpl @Inject constructor(
                 val similarMovies = tmdbService.getSimilarMovies(movieId).body()?.toMovies()
                 emit(Resource.Success(similarMovies))
             }catch (e: Exception){
-                emit(Resource.Error(e.message.toString()))
+                emit(Resource.Error(e.message!!))
             }
         }
     }
@@ -115,7 +115,7 @@ class MoviesRespositoryImpl @Inject constructor(
                 val similarMovies = tmdbService.getSearchedMovie(query,page).body()?.toMovies()
                 emit(Resource.Success(similarMovies))
             }catch (e: Exception){
-                emit(Resource.Error(e.message.toString()))
+                emit(Resource.Error(e.message!!))
             }
         }
     }
@@ -132,19 +132,92 @@ class MoviesRespositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getGenres(): List<Genre> {
-        return genreDao.getAllGenre().map { it.toGenre() }
-    }
-
-    override suspend fun getMovieWithGenre(genreId: String): Flow<Resource<List<Movie>>> {
+    override suspend fun getGenres(): Flow<Resource<List<Genre>>> {
         return flow {
-            try{
+            try {
                 emit(Resource.Loading())
-                val movies = tmdbService.getMovieByGenre(genreId).body()?.toMovies()
-                emit(Resource.Success(movies))
-            }catch (e: Exception){
-                emit(Resource.Error(e.message.toString()))
+                val genres = genreDao.getAllGenre()
+                emit(Resource.Success(genres.map { it.toGenre() }))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message!!))
             }
         }
     }
+
+    override suspend fun getGenre(genreId: Int): Flow<Resource<String>> {
+        return flow {
+            try {
+                emit(Resource.Loading())
+                val genreName = genreDao.getGenre(genreId)
+                emit(Resource.Success(genreName))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message!!))
+            }
+        }
+    }
+
+    override suspend fun getMovieWithGenre(genreId: Int, page: Int): Flow<Resource<List<Movie>>> {
+        return flow {
+            try{
+                emit(Resource.Loading())
+                val movies = tmdbService.getMovieByGenre(page, genreId).body()?.toMovies()
+                emit(Resource.Success(movies))
+            }catch (e: Exception){
+                emit(Resource.Error(e.message!!))
+            }
+        }
+    }
+
+    override suspend fun addRating(
+        movieId: Int,
+        data: Float,
+        sessionId: String
+    ): Flow<Resource<Int>> {
+        return flow {
+            try {
+                val rating = Rating(data.toString())
+                tmdbService.addRating(movieId, sessionId, rating)
+                emit(Resource.Success(R.string.rate_success))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message!!))
+            }
+        }
+    }
+
+    override suspend fun createGuestSession(): Flow<Resource<String>> {
+        return flow {
+            try {
+                val sessionId = tmdbService.createGuestSession().body()?.guestSessionId
+                Log.d("create session id repo", "$sessionId")
+                emit(
+                    Resource.Success(
+                        sessionId
+                    )
+                )
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message!!))
+            }
+        }
+    }
+
+    override suspend fun getRatedMovies(sessionId: String): Flow<Resource<List<Movie>>> {
+        return flow {
+            try {
+                val movies = tmdbService.getRatedMovies(sessionId).body()?.toMovies()
+                emit(
+                    Resource.Success(
+                        movies
+                    )
+                )
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message!!))
+            }
+        }
+    }
+
+    override suspend fun deleteRatedMovie(sessionId: String, movieId: Int) {
+        tmdbService.deleteRatedMovie(movieId, sessionId)
+    }
+
+
 }

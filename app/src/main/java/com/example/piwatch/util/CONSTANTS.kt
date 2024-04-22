@@ -4,5 +4,7 @@ import javax.inject.Singleton
 
 @Singleton
 object CONSTANTS {
-    const val WEB_CLIENT_SEVER = "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"
+    const val OAUTH = "595895124338-673ak8psqp30mgodcr4h5dnpml84da10.apps.googleusercontent.com"
+    const val KKPHIM = "https://phimapi.com/"
+
 }

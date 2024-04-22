@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.piwatch.data.local.model.GenreEntity
-import com.example.piwatch.data.local.model.MovieEntity
 
 @Dao
 interface GenreDao {
@@ -14,4 +13,7 @@ interface GenreDao {
 
     @Query("SELECT * FROM genre")
     fun getAllGenre(): List<GenreEntity>
+
+    @Query("SELECT name FROM genre WHERE id = :genreId")
+    fun getGenre(genreId: Int): String
 }

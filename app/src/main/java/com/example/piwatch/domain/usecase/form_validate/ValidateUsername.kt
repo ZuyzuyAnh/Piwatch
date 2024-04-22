@@ -1,9 +1,7 @@
 package com.example.piwatch.domain.usecase.form_validate
 
-import android.util.Patterns
-import com.example.piwatch.util.ValidateResult
 import com.example.piwatch.R
-import java.util.regex.Pattern
+import com.example.piwatch.util.ValidateResult
 
 class ValidateUsername {
 

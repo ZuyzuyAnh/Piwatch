@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -18,15 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.piwatch.presentation.components.HeadingTextComponent
-import com.example.piwatch.ui.theme.PiWatchTheme
 import com.example.piwatch.R
+import com.example.piwatch.presentation.components.ContentTextComponent
+import com.example.piwatch.presentation.components.HeadingTextComponent
 import com.example.piwatch.presentation.components.LoginButton
 import com.example.piwatch.presentation.components.MyIconTextField
-import com.example.piwatch.presentation.components.SecondaryTextComponent
+import com.example.piwatch.ui.theme.PiWatchTheme
 import com.example.piwatch.util.Resource
 
 @Composable
@@ -48,11 +49,13 @@ fun PasswordResetScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HeadingTextComponent(
-                text = stringResource(R.string.send_password_reset)
+                text = stringResource(R.string.send_password_reset),
+                weight = FontWeight.ExtraBold
             )
             Spacer(modifier = Modifier.heightIn(16.dp))
-            SecondaryTextComponent(
-                text = stringResource(id = R.string.send_password_reset_detail)
+            ContentTextComponent(
+                text = stringResource(id = R.string.send_password_reset_detail),
+                maxLines = 10
             )
             MyIconTextField(
                 label = stringResource(id = R.string.email),
@@ -62,12 +65,13 @@ fun PasswordResetScreen(
                     if(sendRequestFlow.value is Resource.Success){
                         navigateToLogin()
                     }else{
-                        Toast.makeText(context, sendRequestFlow.value!!.message, Toast.LENGTH_LONG)
+                        Toast.makeText(context, sendRequestFlow.value?.message!!, Toast.LENGTH_LONG)
                     }
                 },
                 value = email,
                 isError = false
             )
+            Spacer(modifier = Modifier.height(10.dp))
             LoginButton(
                 text = stringResource(R.string.send_email),
                 MaterialTheme.colorScheme.primary,
