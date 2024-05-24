@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.data.DataStoreRepository
-import com.example.piwatch.domain.repository.AuthRepository
-import com.example.piwatch.domain.repository.MovieRepository
-import com.example.piwatch.presentation.Navigation.AppRoute
+import com.example.piwatch.domain.usecase.auth_usecase.GetUserUsecase
+import com.example.piwatch.domain.usecase.movie_usecase.FetchGenresFromRemoteUseCase
+import com.example.piwatch.presentation.navigation.AppRoute
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 class SplashViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository,
-    private val authRepository: AuthRepository,
-    private val movieRepository: MovieRepository
+    private val getUserUsecase: GetUserUsecase,
+    private val fetchGenresFromRemoteUseCase: FetchGenresFromRemoteUseCase
 ) : ViewModel() {
     private val _isLoading: MutableState<Boolean> = mutableStateOf(true)
     val isLoading: State<Boolean> = _isLoading
@@ -37,7 +37,7 @@ class SplashViewModel @Inject constructor(
                 if (completed) {
                     var user: FirebaseUser? = null
                     viewModelScope.async(IO) {
-                        user = authRepository.getCurrentUser()
+                        user = getUserUsecase.execute()
                     }.await()
                     Log.d("inspect splash user", "${user?.uid}")
                     if (user == null) {
@@ -48,7 +48,7 @@ class SplashViewModel @Inject constructor(
                 } else {
                     _startDestination.value = AppRoute.WELCOME.route
                     viewModelScope.launch(IO) {
-                        movieRepository.fetchGenreFromRemote()
+                        fetchGenresFromRemoteUseCase.execute()
                     }
                 }
             }

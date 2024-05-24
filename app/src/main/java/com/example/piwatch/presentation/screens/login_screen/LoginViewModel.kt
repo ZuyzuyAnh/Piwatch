@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.domain.usecase.form_validate.ValidateEmail
 import com.example.piwatch.domain.usecase.form_validate.ValidatePassword
-import com.example.piwatch.domain.usecase.login_usecase.GoogleSignInUseCase
-import com.example.piwatch.domain.usecase.login_usecase.LoginUsecase
+import com.example.piwatch.domain.usecase.auth_usecase.GoogleSignInUseCase
+import com.example.piwatch.domain.usecase.auth_usecase.LoginUsecase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddUserPlayListsUseCase
+import com.example.piwatch.domain.usecase.movie_usecase.CreateSessionUseCase
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,12 +24,20 @@ class LoginViewModel @Inject constructor(
     private val validateEmail: ValidateEmail,
     private val validatePassword: ValidatePassword,
     private val googleSignInUseCase: GoogleSignInUseCase,
+    private val addUserPlayListsUseCase: AddUserPlayListsUseCase,
+    private val createSessionUseCase: CreateSessionUseCase
 ): ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
 
+    private var sessionId: String? = null
 
+    init {
+        viewModelScope.launch {
+            createSession()
+        }
+    }
     fun onEvent(event: LoginEvent){
         when(event){
             is LoginEvent.EmailChanged -> {
@@ -100,6 +111,9 @@ class LoginViewModel @Inject constructor(
                 is Resource.Success -> {
                     Log.d("loginState", "$result")
                     _state.value = _state.value.copy(loginError = null, isLoginSuccess = true)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        addUserPlayListsUseCase.execute(result.result?.user?.uid!!, sessionId!!)
+                    }
                 }
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true)
@@ -107,6 +121,21 @@ class LoginViewModel @Inject constructor(
                 is Resource.Error -> {
                     Log.d("loginState", "$result")
                     _state.value = _state.value.copy(loginError = result.message, )
+                }
+            }
+        }
+    }
+    suspend fun createSession() {
+        createSessionUseCase.execute().collect { result ->
+            when (result) {
+                is Resource.Success -> {
+                    sessionId = result.result
+                }
+                is Resource.Loading -> {
+
+                }
+                is Resource.Error -> {
+
                 }
             }
         }

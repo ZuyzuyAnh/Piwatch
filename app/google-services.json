@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "595895124338-rgrdfpd8pklqt7f7s8j0gckqt9msaqll.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.piwatch",
+            "certificate_hash": "daed53ec3bd98f0d6bb4feb460db03186fcf28c5"
+          }
+        },
+        {
           "client_id": "595895124338-qrll158l394mch5jfoho0sdgpuk2k1hi.apps.googleusercontent.com",
           "client_type": 3
         }

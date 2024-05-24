@@ -9,7 +9,6 @@ import com.example.piwatch.data.local.model.MovieEntity
 
 @Dao
 interface MovieDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveMovies(movies: List<MovieEntity>)
 

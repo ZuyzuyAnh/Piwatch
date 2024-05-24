@@ -3,15 +3,15 @@ package com.example.piwatch.presentation.screens.signup_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.R
+import com.example.piwatch.domain.usecase.auth_usecase.GetUserUsecase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddUserPlayListsUseCase
 import com.example.piwatch.domain.usecase.form_validate.ValidateEmail
 import com.example.piwatch.domain.usecase.form_validate.ValidatePassword
 import com.example.piwatch.domain.usecase.form_validate.ValidatePasswordConfirm
 import com.example.piwatch.domain.usecase.form_validate.ValidateUsername
-import com.example.piwatch.domain.usecase.login_usecase.SignupUsecase
+import com.example.piwatch.domain.usecase.auth_usecase.SignupUsecase
 import com.example.piwatch.domain.usecase.movie_usecase.CreateSessionUseCase
 import com.example.piwatch.util.Resource
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ class SignupViewModel @Inject constructor(
     private val validatePassword: ValidatePassword,
     private val validatePasswordConfirm: ValidatePasswordConfirm,
     private val addUserPlayListsUseCase: AddUserPlayListsUseCase,
-    private val firebaseAuth: FirebaseAuth,
+    private val getUserUsecase: GetUserUsecase,
     private val createSessionUseCase: CreateSessionUseCase
 ): ViewModel() {
 
@@ -100,7 +100,7 @@ class SignupViewModel @Inject constructor(
         signupUsecase.execute(username,email, password, password2).collect{result ->
             when(result){
                 is Resource.Success -> {
-                    firebaseAuth.currentUser?.uid?.let {
+                    getUserUsecase.execute()?.uid?.let {
                         userId = it
                     }
                     viewModelScope.launch(IO) {

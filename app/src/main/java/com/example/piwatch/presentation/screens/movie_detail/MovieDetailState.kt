@@ -13,6 +13,8 @@ data class MovieDetailState(
     val isLoading: Boolean = true,
     val isAddingLoading: Boolean = false,
 
+    val isFavorite: Boolean = false,
+
     val playList: List<PlayList> = emptyList(),
     val isRatingSuccess: Boolean = false,
     val isAddToPlaylistSuccess: Boolean = false,

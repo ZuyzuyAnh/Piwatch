@@ -55,10 +55,6 @@ interface TMDBService {
         ) apiKey: String = BuildConfig.TMDB_KEY
     ): Response<MovieListDto>
 
-    companion object{
-        const val BASE_URL = "https://api.themoviedb.org/3/"
-    }
-
     @GET("search/movie")
     suspend fun getSearchedMovie(
         @Query(
@@ -119,13 +115,6 @@ interface TMDBService {
         ) apiKey: String = BuildConfig.TMDB_KEY,
     ): Response<GuestSessionDto>
 
-    @GET("guest_session/{guest_session_id}/rated/movies")
-    suspend fun getRatedMovies(
-        @Path("guest_session_id") sessionId: String,
-        @Query(
-            "api_key"
-        ) apiKey: String = BuildConfig.TMDB_KEY,
-    ): Response<MovieListDto>
 
     @DELETE("movie/{movie_id}/rating\n")
     suspend fun deleteRatedMovie(
@@ -135,4 +124,7 @@ interface TMDBService {
             "api_key"
         ) apiKey: String = BuildConfig.TMDB_KEY,
     )
+    companion object{
+        const val BASE_URL = "https://api.themoviedb.org/3/"
+    }
 }

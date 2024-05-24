@@ -6,7 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.piwatch.presentation.Navigation.AppRoute
+import com.example.piwatch.presentation.navigation.AppRoute
 import com.example.piwatch.presentation.screens.home_screen.HomeScreen
 import com.example.piwatch.presentation.screens.home_screen.HomeViewModel
 import com.example.piwatch.presentation.screens.library_screen.LibraryScreen
@@ -34,7 +34,6 @@ fun AppNavHost(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val passwordResetViewModel = hiltViewModel<PassWordResetViewModel>()
     val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
-
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -104,10 +103,10 @@ fun AppNavHost(
                 navigateToMovieDetail = {movieId ->
                     navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")},
                 navigateToHomeScreen = {
-                    navController.navigate("${AppRoute.HOME.route}")
+                    navController.navigate(AppRoute.HOME.route)
                 },
                 navigateToLibraryScreen = {
-                    navController.navigate("${AppRoute.LIBRARY.route}")
+                    navController.navigate(AppRoute.LIBRARY.route)
                 },
                 viewModel = searchScreenViewModel
             )

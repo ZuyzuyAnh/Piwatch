@@ -1,9 +1,8 @@
-package com.example.piwatch.domain.usecase.login_usecase
+package com.example.piwatch.domain.usecase.auth_usecase
 
 import com.example.piwatch.domain.repository.AuthRepository
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

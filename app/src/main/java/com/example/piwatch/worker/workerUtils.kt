@@ -15,17 +15,19 @@ import com.example.piwatch.R
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun makeNotification(message: String, context: Context) {
-    val name = " Movies update Notification"
+    val name = "Movies update Notification"
     val description = "Show notifications whenever work starts"
-    val importance = IMPORTANCE_HIGH
+    val importance = NotificationManager.IMPORTANCE_HIGH
     val id = "MOVIES_NOTIFICATION"
-    val channel = NotificationChannel(id, name, importance)
-    channel.description = description
 
-    val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(id, name, importance)
+        channel.description = description
 
-    notificationManager?.createNotificationChannel(channel)
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+        notificationManager?.createNotificationChannel(channel)
+    }
 
     val builder = NotificationCompat.Builder(context, id)
         .setSmallIcon(R.drawable.logo_icon)
@@ -34,13 +36,11 @@ fun makeNotification(message: String, context: Context) {
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setVibrate(LongArray(0))
 
-    if (ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        NotificationManagerCompat.from(context).notify(1, builder.build())
-
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
     }
 
+    NotificationManagerCompat.from(context).notify(1, builder.build())
 }

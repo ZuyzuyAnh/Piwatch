@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.domain.model.Movie
 import com.example.piwatch.domain.repository.FireStoreService
+import com.example.piwatch.domain.usecase.firestore_usecase.GetPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.RemoveMovieFromPlaylistUseCase
 import com.example.piwatch.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(
-    private val fireStoreService: FireStoreService,
+    private val getPlaylistUseCase: GetPlaylistUseCase,
+    private val removeMovieFromPlaylistUseCase: RemoveMovieFromPlaylistUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -31,7 +34,7 @@ class PlaylistViewModel @Inject constructor(
 
     fun getPlaylist() {
         viewModelScope.launch {
-            fireStoreService.getPlaylist(
+            getPlaylistUseCase.execute(
                 userId, playlistId
             ).collect { result ->
                 when (result) {
@@ -65,10 +68,10 @@ class PlaylistViewModel @Inject constructor(
         movie: Movie
     ) {
         viewModelScope.launch {
-            fireStoreService.removeMovieFromPlaylist(
+            removeMovieFromPlaylistUseCase.execute(
                 movie = movie,
                 userId = userId,
-                playListId = playlistId
+                playlistId = playlistId
             ).collect { result ->
                 if (result is Resource.Success) {
                     _playlistState.value = _playlistState.value.copy(

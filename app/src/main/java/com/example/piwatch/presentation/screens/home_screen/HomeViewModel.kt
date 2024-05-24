@@ -20,6 +20,7 @@ class HomeViewModel @Inject constructor(
 
     private val _homeState = MutableStateFlow(HomeState())
     val homeState: StateFlow<HomeState> = _homeState
+
     init {
         viewModelScope.launch(IO) {
             _homeState.value = _homeState.value.copy(isLoading = true)

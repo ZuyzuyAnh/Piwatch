@@ -10,7 +10,11 @@ import com.example.piwatch.domain.model.Movie
 import com.example.piwatch.domain.model.MovieDetail
 import com.example.piwatch.domain.repository.FireStoreService
 import com.example.piwatch.domain.usecase.firestore_usecase.GetSessionIdUsecase
-import com.example.piwatch.domain.usecase.login_usecase.GetUserUsecase
+import com.example.piwatch.domain.usecase.auth_usecase.GetUserUsecase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToHistoryUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.LoadUserPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.RemoveMovieFromPlaylistUseCase
 import com.example.piwatch.domain.usecase.movie_usecase.AddRatingUseCase
 import com.example.piwatch.domain.usecase.movie_usecase.GetMovieDetailUseCase
 import com.example.piwatch.domain.usecase.movie_usecase.GetSimilarMoviesUseCase
@@ -28,9 +32,12 @@ import javax.inject.Inject
 class MovieDetailViewModel @Inject constructor(
     private val getMovieDetailUseCase: GetMovieDetailUseCase,
     private val getSimilarMoviesUseCase: GetSimilarMoviesUseCase,
-    private val fireStoreService: FireStoreService,
     private val getUserUsecase: GetUserUsecase,
     private val addRatingUseCase: AddRatingUseCase,
+    private val getUserPlaylistUseCase: LoadUserPlaylistUseCase,
+    private val addMovieToPlaylistUseCase: AddMovieToPlaylistUseCase,
+    private val removeMovieFromPlaylistUseCase: RemoveMovieFromPlaylistUseCase,
+    private val addMovieToHistoryUseCase: AddMovieToHistoryUseCase,
     private val getSessionIdUsecase: GetSessionIdUsecase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
@@ -44,7 +51,6 @@ class MovieDetailViewModel @Inject constructor(
     var isDialogShown by mutableStateOf(false)
         private set
 
-    var isRatingSuccess: Boolean = false
 
     var isRatingShown by mutableStateOf(false)
         private set
@@ -58,6 +64,14 @@ class MovieDetailViewModel @Inject constructor(
             delay(500)
             viewModelScope.launch(IO) {
                 loadUserPlayList()
+                if(_movieDetailState.value.playList[0].movieList!!.contains(Movie(
+                        id = _movieDetailState.value.movie.id.toLong(),
+                        posterPath = _movieDetailState.value.movie.posterPath,
+                        title = _movieDetailState.value.movie.title,
+                        voteAverage = _movieDetailState.value.movie.voteAverage,
+                    ))){
+                    _movieDetailState.value = _movieDetailState.value.copy(isFavorite = true);
+                }
             }
             viewModelScope.launch(IO) {
                 getSessionId()
@@ -85,6 +99,19 @@ class MovieDetailViewModel @Inject constructor(
         isRatingShown = false
     }
 
+    fun onAddFavorite(){
+        viewModelScope.launch(IO) {
+            addMovieToPlaylist(0);
+            _movieDetailState.value = _movieDetailState.value.copy(isFavorite = true);
+        }
+    }
+
+    fun onRemoveFavorite(){
+        viewModelScope.launch(IO) {
+            removeMovieFromPlaylist(0);
+            _movieDetailState.value = _movieDetailState.value.copy(isFavorite = false);
+        }
+    }
     suspend fun getMovieDetailState() {
         val movieDetail = getMovieDetailUseCase.execute(movieId)
         val similarMovies = getSimilarMoviesUseCase.execute(movieId)
@@ -137,13 +164,13 @@ class MovieDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun getUserId() {
+    private suspend fun getUserId() {
         userId = getUserUsecase.execute()!!.uid
     }
 
-    suspend fun loadUserPlayList() {
+    private suspend fun loadUserPlayList() {
         try {
-            fireStoreService.getUserPlayLists(userId).collect { result ->
+            getUserPlaylistUseCase.execute(userId).collect { result ->
                 when (result) {
                     is Resource.Success -> {
                         _movieDetailState.value = _movieDetailState.value.copy(
@@ -160,16 +187,16 @@ class MovieDetailViewModel @Inject constructor(
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
     }
 
     suspend fun addMovieToPlaylist(playListId: Int) {
         viewModelScope.launch {
-            fireStoreService.addMoviesToPlayList(
+            addMovieToPlaylistUseCase.execute(
                 userId = userId,
                 movie = stateToMovie(),
-                playListId = playListId
+                playlistId = playListId
             ).collect { result ->
                 if (result is Resource.Success) {
                     _movieDetailState.value = _movieDetailState.value.copy(
@@ -191,10 +218,10 @@ class MovieDetailViewModel @Inject constructor(
 
     suspend fun removeMovieFromPlaylist(playListId: Int) {
         viewModelScope.launch {
-            fireStoreService.removeMovieFromPlaylist(
+            removeMovieFromPlaylistUseCase.execute(
                 userId = userId,
                 movie = stateToMovie(),
-                playListId = playListId
+                playlistId = playListId
             ).collect { result ->
                 if (result is Resource.Success) {
                     _movieDetailState.value = _movieDetailState.value.copy(
@@ -218,7 +245,7 @@ class MovieDetailViewModel @Inject constructor(
 
     fun addMovieToHistory() {
         viewModelScope.launch {
-            fireStoreService.addMoviesToHistory(
+            addMovieToHistoryUseCase.execute(
                 userId,
                 movie = stateToMovie()
             )
@@ -263,7 +290,7 @@ class MovieDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun getSessionId() {
+    private suspend fun getSessionId() {
         getSessionIdUsecase.execute(userId).collect { result ->
             if (result is Resource.Success) {
                 sessionId = result.result.toString()

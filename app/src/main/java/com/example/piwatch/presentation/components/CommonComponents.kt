@@ -88,7 +88,7 @@ fun ParagraphContentTextComponent(
             text = text,
             modifier = modifier,
             style = TextStyle(
-                fontSize = 10.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Light
             ),
         )

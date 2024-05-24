@@ -24,7 +24,14 @@ android {
             useSupportLibrary = true
         }
         vectorDrawables.useSupportLibrary = true
-
+    }
+    signingConfigs {
+        create("release")  {
+            storeFile = file("C:/Users/duytr/Documents/release-key.jks")
+            storePassword = "android"
+            keyAlias = "my-release-key"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -34,6 +41,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

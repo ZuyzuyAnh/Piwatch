@@ -23,32 +23,26 @@ interface FireStoreService {
     suspend fun getUserPlayLists(
         userId: String
     ): Flow<Resource<UserPlaylist>>
-
     suspend fun removeMovieFromPlaylist(
         movie: Movie,
         userId: String,
         playListId: Int,
     ): Flow<Resource<Int>>
-
     suspend fun deletePlaylist(
         userId: String,
         playListId: Int
     ): Flow<Resource<Int>>
-
     suspend fun getUserHistory(
         userId: String
     ): Flow<Resource<List<Movie>>>
-
     suspend fun addMoviesToHistory(
         userId: String,
         movie: Movie
     )
-
     suspend fun getPlaylist(
         userId: String,
         playlistId: Int
     ): Flow<Resource<PlayList>>
-
     suspend fun getSessionId(
         userId: String
     ): Flow<Resource<String>>

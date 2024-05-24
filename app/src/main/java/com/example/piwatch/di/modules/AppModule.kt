@@ -28,27 +28,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
-
     @Singleton
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
-
-    @Singleton
-    @Provides
-    fun provideFirebaseAuthRepository(
-        impl: AuthRepositoryImpl
-    ): AuthRepository = impl
-
-    @Singleton
-    @Provides
-    fun provideFireStore(): FirebaseFirestore = Firebase.firestore
-
-    @Singleton
-    @Provides
-    fun provideFireStoreService(
-        impl: FireStoreServiceImpl
-    ): FireStoreService = impl
-
     @Singleton
     @Provides
     fun provideMovieRemoteService(): TMDBService {
@@ -58,8 +40,6 @@ class AppModule {
             .build()
             .create(TMDBService::class.java)
     }
-
-
     @Singleton
     @Provides
     fun provideMovieDatabase(application: Application): MovieDatabase{
@@ -69,6 +49,23 @@ class AppModule {
             "moviedb"
         ).build()
     }
+    @Singleton
+    @Provides
+    fun provideFireStore(): FirebaseFirestore = Firebase.firestore
+    @Singleton
+    @Provides
+    fun provideFirebaseAuthRepository(
+        impl: AuthRepositoryImpl
+    ): AuthRepository = impl
+
+
+    @Singleton
+    @Provides
+    fun provideFireStoreService(
+        impl: FireStoreServiceImpl
+    ): FireStoreService = impl
+
+
 
     @Singleton
     @Provides

@@ -16,16 +16,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.VideoLibrary
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -239,6 +243,38 @@ fun MovieDetailScreen(
                                 viewModel.onBuyClick()
                             },
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        if(state.isFavorite){
+                            Box(
+                                modifier = Modifier.clickable {
+                                    viewModel.onRemoveFavorite()
+                                }
+                            ){
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp),
+                                    tint = Color.Red
+
+                                )
+                            }
+                        }else{
+                            Box(
+                                modifier = Modifier.clickable {
+                                    viewModel.onAddFavorite()
+                                }
+                            ){
+                                Icon(
+                                    imageVector = Icons.Default.FavoriteBorder,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     HeadingTextComponent(text = "Overview", weight = FontWeight.Bold)

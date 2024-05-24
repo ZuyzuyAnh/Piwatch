@@ -62,7 +62,4 @@ fun PlaylistRow(
             }
         }
     }
-    LaunchedEffect(key1 = playLists) {
-
-    }
 }

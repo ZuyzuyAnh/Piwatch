@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val completed = splashViewModel.isFirstTime.value
         worker = WorkManager.getInstance(this)
-        if (!completed) {
+        if (completed==false) {
             scheduleFetchDataWork(worker)
         }
         installSplashScreen().setKeepOnScreenCondition {

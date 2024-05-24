@@ -7,7 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.domain.repository.FireStoreService
-import com.example.piwatch.domain.usecase.login_usecase.GetUserUsecase
+import com.example.piwatch.domain.usecase.auth_usecase.GetUserUsecase
+import com.example.piwatch.domain.usecase.auth_usecase.SignOutUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddNewPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.DeletePlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.GetUserHistoryUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.LoadUserPlaylistUseCase
 import com.example.piwatch.domain.usecase.movie_usecase.GetGenresUseCase
 import com.example.piwatch.util.Resource
 import com.google.firebase.auth.FirebaseAuth
@@ -23,8 +28,11 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
     private val getUserUsecase: GetUserUsecase,
     private val getGenresUseCase: GetGenresUseCase,
-    private val fireStoreService: FireStoreService,
-    private val firebaseAuth: FirebaseAuth,
+    private val signOutUseCase: SignOutUseCase,
+    private val getUserPlaylistUseCase: LoadUserPlaylistUseCase,
+    private val addNewPlaylistUseCase: AddNewPlaylistUseCase,
+    private var getUserHistoryUseCase: GetUserHistoryUseCase,
+    private var deletePlaylistUseCase: DeletePlaylistUseCase
 ): ViewModel() {
     var userId: String? = null
 
@@ -57,7 +65,7 @@ class LibraryViewModel @Inject constructor(
 
     fun signOut() {
         _libraryState.value = _libraryState.value.copy(isLoading = true)
-        firebaseAuth.signOut()
+        signOutUseCase.execute()
     }
     fun onBuyClick(){
         playListName = ""
@@ -71,7 +79,7 @@ class LibraryViewModel @Inject constructor(
 
     fun onValueChange(name: String){
         playListName = name
-        if (_libraryState.value.playList.filter { it.playListName == playListName }.isNotEmpty()) {
+        if (_libraryState.value.playList.any { it.playListName == playListName }) {
             _libraryState.value = _libraryState.value.copy(error = true)
         } else {
             _libraryState.value = _libraryState.value.copy(error = false)
@@ -104,7 +112,7 @@ class LibraryViewModel @Inject constructor(
 
     suspend fun loadUserPlayList() {
         viewModelScope.launch {
-            fireStoreService.getUserPlayLists(userId!!).collect { result ->
+            getUserPlaylistUseCase.execute(userId!!).collect { result ->
                 when (result) {
                     is Resource.Success -> {
                         _libraryState.value = _libraryState.value.copy(
@@ -133,7 +141,7 @@ class LibraryViewModel @Inject constructor(
     suspend fun addNewPlayList() {
         if (_libraryState.value.error == false) {
             viewModelScope.launch {
-                fireStoreService.addNewPlayList(userId!!, playListName).collect { result ->
+                addNewPlaylistUseCase.execute(userId!!, playListName).collect { result ->
                     if (result is Resource.Success) {
                         _libraryState.value = _libraryState.value.copy(
                             toast = result.result,
@@ -166,7 +174,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     suspend fun loadUserHistory() {
-        fireStoreService.getUserHistory(userId!!).collect { result ->
+        getUserHistoryUseCase.execute(userId!!).collect { result ->
             when (result) {
                 is Resource.Success -> {
                     _libraryState.value = _libraryState.value.copy(
@@ -190,7 +198,7 @@ class LibraryViewModel @Inject constructor(
 
     fun deletePlaylist(playlistId: Int) {
         viewModelScope.launch {
-            fireStoreService.deletePlaylist(userId!!, playListId = playlistId).collect { result ->
+            deletePlaylistUseCase.execute(userId!!, playListId = playlistId).collect { result ->
                 if (result is Resource.Success) {
                     _libraryState.value = _libraryState.value.copy(
                         toast = result.result,

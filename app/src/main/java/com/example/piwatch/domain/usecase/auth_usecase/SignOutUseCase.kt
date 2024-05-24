@@ -1,4 +1,4 @@
-package com.example.piwatch.domain.usecase.login_usecase
+package com.example.piwatch.domain.usecase.auth_usecase
 
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject

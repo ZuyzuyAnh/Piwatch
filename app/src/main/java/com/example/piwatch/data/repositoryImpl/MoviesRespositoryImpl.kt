@@ -200,21 +200,6 @@ class MoviesRespositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRatedMovies(sessionId: String): Flow<Resource<List<Movie>>> {
-        return flow {
-            try {
-                val movies = tmdbService.getRatedMovies(sessionId).body()?.toMovies()
-                emit(
-                    Resource.Success(
-                        movies
-                    )
-                )
-            } catch (e: Exception) {
-                emit(Resource.Error(e.message!!))
-            }
-        }
-    }
-
     override suspend fun deleteRatedMovie(sessionId: String, movieId: Int) {
         tmdbService.deleteRatedMovie(movieId, sessionId)
     }

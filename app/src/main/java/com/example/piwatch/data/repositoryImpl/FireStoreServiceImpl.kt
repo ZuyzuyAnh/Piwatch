@@ -19,7 +19,6 @@ import javax.inject.Inject
 class FireStoreServiceImpl @Inject constructor(
     private val fireStore: FirebaseFirestore,
 ): FireStoreService {
-
     override suspend fun addNewUserPlayList(userId: String, sessionId: String) {
         val data = UserPlaylist(
             userId = userId,
@@ -94,8 +93,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
-
     override suspend fun addMoviesToPlayList(
         userId: String,
         playListId: Int,
@@ -135,7 +132,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun getUserPlayLists(userId: String): Flow<Resource<UserPlaylist>> {
         return flow {
             emit(Resource.Loading())
@@ -161,8 +157,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
-
     override suspend fun removeMovieFromPlaylist(
         movie: Movie,
         userId: String,
@@ -202,7 +196,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun deletePlaylist(userId: String, playListId: Int): Flow<Resource<Int>> {
         return flow {
             try {
@@ -239,8 +232,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
-
     override suspend fun getUserHistory(userId: String): Flow<Resource<List<Movie>>> {
         return flow {
             emit(Resource.Loading())
@@ -270,7 +261,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun addMoviesToHistory(userId: String, movie: Movie) {
         fireStore.collection("userPlaylist")
             .whereEqualTo("userId", userId)
@@ -285,7 +275,6 @@ class FireStoreServiceImpl @Inject constructor(
                 document.reference.update("history", history)
             }
     }
-
     override suspend fun getPlaylist(
         userId: String,
         playlistId: Int
@@ -323,7 +312,6 @@ class FireStoreServiceImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun getSessionId(userId: String): Flow<Resource<String>> {
         return flow {
             emit(Resource.Loading())

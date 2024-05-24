@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.piwatch.domain.usecase.login_usecase.PassWordResetUseCase
+import com.example.piwatch.domain.usecase.auth_usecase.PassWordResetUseCase
 import com.example.piwatch.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

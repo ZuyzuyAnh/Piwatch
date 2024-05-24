@@ -67,7 +67,7 @@ fun PlayListItem(
                     alignment = Alignment.Center,
                 )
             }
-            if (playList.playListName != "favorite") {
+            if (playList.playListName != "Favorite") {
                 Box(
                     modifier = Modifier
                         .wrapContentSize()

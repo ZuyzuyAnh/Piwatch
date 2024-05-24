@@ -19,8 +19,6 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun getCurrentUser(): FirebaseUser? {
         return firebaseAuth.currentUser
     }
-
-
     override suspend fun loginnUser(email: String, password: String): Flow<Resource<AuthResult>> {
         return flow {
             try {
@@ -34,7 +32,6 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun signUpUser(
         userName: String,
         email: String,
@@ -54,7 +51,6 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun googleSignIn(credential: AuthCredential): Flow<Resource<AuthResult>> {
         return flow {
             try {
@@ -66,7 +62,6 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun forgotpassword(email: String): Flow<Resource<Void>> {
         return flow {
             try {
@@ -78,11 +73,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
-
     override suspend fun logout() {
         firebaseAuth.signOut()
     }
-
 }

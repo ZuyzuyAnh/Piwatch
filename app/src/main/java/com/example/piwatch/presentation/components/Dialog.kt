@@ -147,7 +147,7 @@ fun AddMovieToPlaylistDialog(
                 LazyColumn(
                     modifier = Modifier.padding(5.dp),
                 ) {
-                    items(items = playLists) {
+                    items(items = playLists.subList(1,playLists.size)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -180,20 +180,6 @@ fun AddMovieToPlaylistDialog(
                         }
                     }
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                    Button(onClick = {
-                        onDismiss()
-                    }) {
-                        TextComponent(
-                            text = "OK",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            weight = FontWeight.Bold
-                        )
-                    }
             }
         }
     }

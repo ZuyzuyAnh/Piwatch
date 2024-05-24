@@ -1,4 +1,4 @@
-package com.example.piwatch.domain.usecase.login_usecase
+package com.example.piwatch.domain.usecase.auth_usecase
 
 import com.example.piwatch.domain.repository.AuthRepository
 import com.example.piwatch.util.Resource

@@ -1,4 +1,4 @@
-package com.example.piwatch.presentation.Navigation
+package com.example.piwatch.presentation.navigation
 
 enum class AppRoute(
     val route: String
