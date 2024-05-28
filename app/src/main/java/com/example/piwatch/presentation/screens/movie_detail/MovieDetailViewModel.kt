@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.piwatch.domain.model.Movie
 import com.example.piwatch.domain.model.MovieDetail
+import com.example.piwatch.domain.model.Rated
 import com.example.piwatch.domain.repository.FireStoreService
 import com.example.piwatch.domain.usecase.firestore_usecase.GetSessionIdUsecase
 import com.example.piwatch.domain.usecase.auth_usecase.GetUserUsecase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToHistoryUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddRatedToListUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.GetRatedListUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.LoadUserPlaylistUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.RemoveMovieFromPlaylistUseCase
 import com.example.piwatch.domain.usecase.movie_usecase.AddRatingUseCase
@@ -39,6 +42,8 @@ class MovieDetailViewModel @Inject constructor(
     private val removeMovieFromPlaylistUseCase: RemoveMovieFromPlaylistUseCase,
     private val addMovieToHistoryUseCase: AddMovieToHistoryUseCase,
     private val getSessionIdUsecase: GetSessionIdUsecase,
+    private val addRatedToListUseCase: AddRatedToListUseCase,
+    private val getRatedListUseCase: GetRatedListUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     lateinit var userId: String
@@ -75,6 +80,7 @@ class MovieDetailViewModel @Inject constructor(
             }
             viewModelScope.launch(IO) {
                 getSessionId()
+                getRatedList()
             }
 
         }
@@ -269,8 +275,10 @@ class MovieDetailViewModel @Inject constructor(
                         _movieDetailState.value = _movieDetailState.value.copy(
                             message = result.result!!,
                             isRatingSuccess = true,
-                            shouldShowToast = true
+                            shouldShowToast = true,
+                            rating = value
                         )
+                        addRatedToListUseCase.execute(userId, Rated(movieId, value))
                         delay(1000)
                         _movieDetailState.value = _movieDetailState.value.copy(
                             isRatingSuccess = false,
@@ -297,7 +305,20 @@ class MovieDetailViewModel @Inject constructor(
             }
         }
     }
-
+    private suspend fun getRatedList(){
+        val ratedList = getRatedListUseCase.execute(userId)
+        ratedList.collect{result ->
+            if(result is Resource.Success){
+                result.result!!.forEach {rating ->
+                    if(rating.movieId.equals(movieId)){
+                        _movieDetailState.value = _movieDetailState.value.copy(
+                            rating = rating.rating
+                        )
+                    }
+                }
+            }
+        }
+    }
     fun turnOffToast() {
         _movieDetailState.value = _movieDetailState.value.copy(
             shouldShowToast = false

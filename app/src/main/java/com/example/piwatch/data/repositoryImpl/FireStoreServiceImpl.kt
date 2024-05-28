@@ -2,8 +2,10 @@ package com.example.piwatch.data.repositoryImpl
 
 import android.util.Log
 import com.example.piwatch.R
+import com.example.piwatch.data.remote.model.Rating
 import com.example.piwatch.domain.model.Movie
 import com.example.piwatch.domain.model.PlayList
+import com.example.piwatch.domain.model.Rated
 import com.example.piwatch.domain.model.UserPlaylist
 import com.example.piwatch.domain.repository.FireStoreService
 import com.example.piwatch.util.Resource
@@ -34,8 +36,10 @@ class FireStoreServiceImpl @Inject constructor(
                     movieList = emptyList()
                 )
             ),
+            ratedMovies = listOf(
+                Rated()
+            ),
             tmdbSession = sessionId,
-            indexCount = 2
         )
         fireStore.collection("userPlaylist")
             .whereEqualTo("userId", userId)
@@ -60,7 +64,7 @@ class FireStoreServiceImpl @Inject constructor(
                         val document = querySnapshot.documents[0]
                         val userPlaylist = document.toObject(UserPlaylist::class.java)
 
-                        val currentIndexCount = userPlaylist?.indexCount ?: 0
+                        val currentIndexCount = userPlaylist?.playLists?.size ?: 0
                         val newPlaylistId = currentIndexCount + 1
 
                         val newPlaylist = PlayList(
@@ -333,6 +337,50 @@ class FireStoreServiceImpl @Inject constructor(
                 emit(Resource.Error(""))
             } else {
                 emit(Resource.Success(sessionId))
+            }
+        }
+    }
+
+    override suspend fun addRatedToList(userId: String, rated: Rated) {
+        fireStore.collection("userPlaylist")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener {
+                val documents = it.documents
+                val document = documents[0]
+                val userPlaylist = document.toObject<UserPlaylist>()
+                val ratedList = userPlaylist?.ratedMovies as MutableList<Rated>
+                ratedList.removeIf{it.movieId == rated.movieId}
+                ratedList.add(rated)
+                document.reference.update("ratedMovies", ratedList)
+            }
+    }
+
+    override suspend fun getRatedList(userId: String): Flow<Resource<List<Rated>>> {
+        return flow {
+            emit(Resource.Loading())
+            var ratedMovies: List<Rated>? = null
+            var error: String? = null
+            coroutineScope {
+                async {
+                    fireStore.collection("userPlaylist")
+                        .whereEqualTo("userId", userId)
+                        .get()
+                        .addOnSuccessListener {
+                            val documents = it.documents
+                            val document = documents[0]
+                            val userPlaylist = document.toObject<UserPlaylist>()
+                            ratedMovies = userPlaylist?.ratedMovies
+                        }
+                        .addOnFailureListener {
+                            error = it.message
+                        }
+                }.await()
+            }.await()
+            if (ratedMovies == null) {
+                emit(Resource.Error(error!!))
+            } else {
+                emit(Resource.Success(ratedMovies))
             }
         }
     }

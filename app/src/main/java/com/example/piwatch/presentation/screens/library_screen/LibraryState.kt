@@ -11,7 +11,6 @@ data class LibraryState(
     val isLoading: Boolean = true,
     val isAddPlaylistLoading: Boolean = false,
     val error: Boolean = false,
-    val indexCount: Int = 0,
     val swipRefresh: Boolean = false,
     val userName: String? = null,
     val shouldShowToast: Boolean = false,

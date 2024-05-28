@@ -3,6 +3,7 @@ package com.example.piwatch.presentation.screens.login_screen
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
@@ -29,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.piwatch.R
 import com.example.piwatch.presentation.components.HeadingTextComponent
 import com.example.piwatch.presentation.components.LoginButton
@@ -75,6 +78,7 @@ fun LoginScreen(
             .fillMaxSize()
             .padding(30.dp),
     ) {
+        Box(modifier = Modifier.fillMaxSize()){
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround
@@ -173,16 +177,19 @@ fun LoginScreen(
                         }
                     )
                 }
-                if (state.isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                Spacer(modifier = Modifier)
             }
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f)
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
         }
     LaunchedEffect(key1 = state){
         if(state.isLoginSuccess){

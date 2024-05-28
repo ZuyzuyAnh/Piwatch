@@ -31,9 +31,6 @@ fun AppNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val passwordResetViewModel = hiltViewModel<PassWordResetViewModel>()
-    val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -74,6 +71,7 @@ fun AppNavHost(
         composable(
             route = AppRoute.RESET_PASSWORD.route
         ){
+            val passwordResetViewModel = hiltViewModel<PassWordResetViewModel>()
             PasswordResetScreen(
                 navigateToLogin = {
                     navController.navigate(AppRoute.LOGIN.route)
@@ -84,14 +82,16 @@ fun AppNavHost(
         composable(
             route = AppRoute.HOME.route
         ){
+            val homeViewModel = hiltViewModel<HomeViewModel>()
+
             HomeScreen(
                 navigateToMovieDetail = {movieId ->
                     navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")},
                 navigateToSearchScreen = {
-                    navController.navigate("${AppRoute.SEARCH.route}")
+                    navController.navigate(AppRoute.SEARCH.route)
                 },
                 navigateToLibraryScreen = {
-                    navController.navigate("${AppRoute.LIBRARY.route}")
+                    navController.navigate(AppRoute.LIBRARY.route)
                 },
                 viewModel = homeViewModel
             )
@@ -99,6 +99,7 @@ fun AppNavHost(
         composable(
             route = AppRoute.SEARCH.route
         ){
+            val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
             searchScreen(
                 navigateToMovieDetail = {movieId ->
                     navController.navigate("${AppRoute.MOVIE_DETAIL.route}/$movieId")},
@@ -132,11 +133,12 @@ fun AppNavHost(
                     navController.navigate("${AppRoute.MOVIE_WITH_GENRE.route}/$genreId")
                 },
                 navigateToLogin = {
-                    Log.d("navigate To Login", " ")
+                    Log.d("navigate To Login", startDestination)
                     navController.navigate(AppRoute.LOGIN.route) {
-                        popUpTo(navController.graph.startDestinationId) {
+                        popUpTo(0) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 viewModel = libraryViewModel

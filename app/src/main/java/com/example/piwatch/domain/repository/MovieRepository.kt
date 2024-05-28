@@ -19,4 +19,5 @@ interface MovieRepository {
     suspend fun addRating(movieId: Int, data: Float, sessionId: String): Flow<Resource<Int>>
     suspend fun createGuestSession(): Flow<Resource<String>>
     suspend fun deleteRatedMovie(sessionId: String, movieId: Int)
+
 }

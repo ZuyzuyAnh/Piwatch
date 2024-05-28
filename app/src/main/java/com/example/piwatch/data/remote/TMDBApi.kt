@@ -116,7 +116,7 @@ interface TMDBService {
     ): Response<GuestSessionDto>
 
 
-    @DELETE("movie/{movie_id}/rating\n")
+    @DELETE("movie/{movie_id}/rating")
     suspend fun deleteRatedMovie(
         @Path("movie_id") movieId: Int,
         @Query("guest_session_id") sessionId: String,
@@ -127,4 +127,5 @@ interface TMDBService {
     companion object{
         const val BASE_URL = "https://api.themoviedb.org/3/"
     }
+
 }

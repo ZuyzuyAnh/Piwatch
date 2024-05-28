@@ -1,16 +1,20 @@
 package com.example.piwatch.di.modules.usecase_modules
 
 import com.example.piwatch.domain.repository.FireStoreService
+import com.example.piwatch.domain.repository.MovieRepository
 import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToHistoryUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddMovieToPlaylistUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddNewPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.AddRatedToListUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.AddUserPlayListsUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.DeletePlaylistUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.GetPlaylistUseCase
+import com.example.piwatch.domain.usecase.firestore_usecase.GetRatedListUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.GetSessionIdUsecase
 import com.example.piwatch.domain.usecase.firestore_usecase.GetUserHistoryUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.LoadUserPlaylistUseCase
 import com.example.piwatch.domain.usecase.firestore_usecase.RemoveMovieFromPlaylistUseCase
+import com.example.piwatch.domain.usecase.movie_usecase.FetchGenresFromRemoteUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -81,4 +85,17 @@ class FireStoreUseCaseModule {
     fun provideAddMovieToPlaylistUseCase(
         fireStoreService: FireStoreService
     ): AddMovieToPlaylistUseCase = AddMovieToPlaylistUseCase(fireStoreService)
+
+    @Provides
+    @Singleton
+    fun provideAddRatedToListUseCase(
+        fireStoreService: FireStoreService
+    ): AddRatedToListUseCase = AddRatedToListUseCase(fireStoreService)
+
+
+    @Provides
+    @Singleton
+    fun provideGetRatedList(
+        fireStoreService: FireStoreService
+    ): GetRatedListUseCase = GetRatedListUseCase(fireStoreService)
 }

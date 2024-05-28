@@ -62,11 +62,6 @@ fun PasswordResetScreen(
                 Icons.Outlined.Email,
                 onTextChange = {
                     viewModel.onEvent(PasswordResetEvent.EmailChanged(it))
-                    if(sendRequestFlow.value is Resource.Success){
-                        navigateToLogin()
-                    }else{
-                        Toast.makeText(context, sendRequestFlow.value?.message!!, Toast.LENGTH_LONG)
-                    }
                 },
                 value = email,
                 isError = false
@@ -77,6 +72,11 @@ fun PasswordResetScreen(
                 MaterialTheme.colorScheme.primary,
                 onClick = {
                     viewModel.onEvent(PasswordResetEvent.Submit)
+                    if(sendRequestFlow.value is Resource.Success){
+                        Toast.makeText(context, "Email sended", Toast.LENGTH_LONG).show()
+                    }else if(sendRequestFlow.value is Resource.Error){
+                        Toast.makeText(context, sendRequestFlow.value?.message!!, Toast.LENGTH_LONG).show()
+                    }
                     Log.d("MyTAG", "")
                 }
             )

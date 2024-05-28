@@ -92,25 +92,33 @@ fun CustomDialog(
                         ContentTextComponent(text = stringResource(id = R.string.cancel))
                     }
                     Spacer(modifier = Modifier.width(10.dp))
-                    Box(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .clickable {
-                                if (!error && playListName.isNotEmpty()) {
-                                    addNewPlayList()
-                                    onDismiss()
-                                }
-                            }
-                    ) {
-                        if (playListName.isEmpty() || error) {
+                    if(playListName.isEmpty() || error) {
+                        Box(
+                            modifier = Modifier
+                                .wrapContentSize()
+                        ) {
                             ContentTextComponent(
                                 text = stringResource(id = R.string.confirm),
                                 color = MaterialTheme.colorScheme.secondary
                             )
-                        } else {
+
+                        }
+                    }else{
+
+                        Box(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .clickable {
+                                    if (!error && playListName.isNotEmpty()) {
+                                        addNewPlayList()
+                                        onDismiss()
+                                    }
+                                }
+                        ) {
                             ContentTextComponent(text = stringResource(id = R.string.confirm))
                         }
                     }
+
                 }
             }
         }
@@ -187,6 +195,7 @@ fun AddMovieToPlaylistDialog(
 
 @Composable
 fun RatingDialog(
+    value: Float,
     onDismiss: () -> Unit,
     addRating: (Float) -> Unit,
 ) {
@@ -196,7 +205,6 @@ fun RatingDialog(
             usePlatformDefaultWidth = false
         )
     ) {
-        var sliderPosition by remember { mutableFloatStateOf(0f) }
         Card(
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
@@ -209,7 +217,9 @@ fun RatingDialog(
                     .padding(15.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                HeadingTextComponent(text = "Add rating", weight = FontWeight.Bold)
                 CustomSlider(
+                    value = value,
                     addRating = {
                         addRating(it)
                     },

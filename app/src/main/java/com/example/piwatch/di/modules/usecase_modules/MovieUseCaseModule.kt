@@ -96,4 +96,6 @@ class MovieUseCaseModule {
     fun provideFetchGenresFromRemoteUseCase(
         movieRepository: MovieRepository
     ): FetchGenresFromRemoteUseCase = FetchGenresFromRemoteUseCase(movieRepository)
+
+
 }

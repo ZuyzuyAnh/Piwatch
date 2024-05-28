@@ -24,7 +24,6 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch(IO) {
             _homeState.value = _homeState.value.copy(isLoading = true)
-            delay(1000)
             getMovieList()
             _homeState.value = _homeState.value.copy(isLoading = false)
         }
@@ -50,6 +49,9 @@ class HomeViewModel @Inject constructor(
                     _homeState.value = _homeState.value.copy(isLoading = true)
                 }
                 is Resource.Error -> Unit
+                is Resource.Error -> TODO()
+                is Resource.Loading -> TODO()
+                is Resource.Success -> TODO()
             }
         }
     }

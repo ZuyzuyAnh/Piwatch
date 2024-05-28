@@ -3,6 +3,7 @@ package com.example.piwatch
 import AppNavHost
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -23,6 +25,7 @@ import com.example.piwatch.presentation.screens.welcome_screen.SplashViewModel
 import com.example.piwatch.ui.theme.PiWatchTheme
 import com.example.piwatch.worker.FetchMovieFromRemoteWorker
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -32,14 +35,29 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var splashViewModel: SplashViewModel
 
+
     private lateinit var worker: WorkManager
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val completed = splashViewModel.isFirstTime.value
         worker = WorkManager.getInstance(this)
-        if (completed==false) {
-            scheduleFetchDataWork(worker)
+        lifecycleScope.launch {
+            splashViewModel.isFirstTime.collect { isFirstTime ->
+                if (isFirstTime == true) {
+                    Log.d("is first time", isFirstTime.toString())
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+
+                    val periodicWorkRequest = PeriodicWorkRequest.Builder(
+                        FetchMovieFromRemoteWorker::class.java,
+                        24, TimeUnit.HOURS
+                    )
+                        .setConstraints(constraints)
+                        .build()
+                    worker.enqueue(periodicWorkRequest)
+                }
+            }
         }
         installSplashScreen().setKeepOnScreenCondition {
             !splashViewModel.isLoading.value
@@ -66,19 +84,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-    fun scheduleFetchDataWork(worker: WorkManager){
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val periodicWorkRequest = PeriodicWorkRequest.Builder(
-            FetchMovieFromRemoteWorker::class.java,
-            24, TimeUnit.HOURS
-        )
-            .setConstraints(constraints)
-            .build()
-        worker.enqueue(periodicWorkRequest)
     }
 }
 

@@ -145,6 +145,7 @@ fun MovieDetailScreen(
             }
             if (viewModel.isRatingShown == true) {
                 RatingDialog(
+                    value = state.rating,
                     onDismiss = { viewModel.onDismissRating() },
                     addRating = {
                         viewModel.addRating(it)

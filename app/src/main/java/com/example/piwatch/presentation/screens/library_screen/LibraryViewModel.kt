@@ -118,7 +118,6 @@ class LibraryViewModel @Inject constructor(
                         _libraryState.value = _libraryState.value.copy(
                             playList = result.result?.playLists!!,
                             isLoading = false,
-                            indexCount = result.result.indexCount
                         )
                     }
 
@@ -184,9 +183,7 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 is Resource.Loading -> {
-                    _libraryState.value = _libraryState.value.copy(
-                        swipRefresh = true
-                    )
+
                 }
 
                 is Resource.Error -> {

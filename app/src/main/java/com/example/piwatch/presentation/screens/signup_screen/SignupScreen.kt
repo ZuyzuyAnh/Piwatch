@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.piwatch.R
 import com.example.piwatch.presentation.components.HeadingTextComponent
 import com.example.piwatch.presentation.components.LoginButton
@@ -43,7 +45,6 @@ fun SignUpScreen(
     viewModel: SignupViewModel
 ) {
     val state = viewModel.state.collectAsState().value
-    val context = LocalContext.current
     Surface(
         color = MaterialTheme.colorScheme.background,
     ) {
@@ -160,13 +161,16 @@ fun SignUpScreen(
                     }
                     Spacer(modifier = Modifier.heightIn(20.dp))
                 }
-                if (state.isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            }
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f)
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }

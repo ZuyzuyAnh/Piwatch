@@ -14,6 +14,7 @@ data class MovieDetailState(
     val isAddingLoading: Boolean = false,
 
     val isFavorite: Boolean = false,
+    val rating: Float = 0f,
 
     val playList: List<PlayList> = emptyList(),
     val isRatingSuccess: Boolean = false,

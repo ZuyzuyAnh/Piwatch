@@ -2,6 +2,7 @@ package com.example.piwatch.domain.repository
 
 import com.example.piwatch.domain.model.Movie
 import com.example.piwatch.domain.model.PlayList
+import com.example.piwatch.domain.model.Rated
 import com.example.piwatch.domain.model.UserPlaylist
 import com.example.piwatch.util.Resource
 import kotlinx.coroutines.flow.Flow
@@ -46,4 +47,13 @@ interface FireStoreService {
     suspend fun getSessionId(
         userId: String
     ): Flow<Resource<String>>
+
+    suspend fun addRatedToList(
+        userId: String,
+        rated: Rated
+    )
+
+    suspend fun getRatedList(
+        userId: String
+    ): Flow<Resource<List<Rated>>>
 }

@@ -13,6 +13,8 @@ import com.example.piwatch.presentation.navigation.AppRoute
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,25 +29,24 @@ class SplashViewModel @Inject constructor(
     private val _startDestination: MutableState<String> = mutableStateOf("")
     val startDestination: State<String> = _startDestination
 
-    private val _isFirstTime: MutableState<Boolean> = mutableStateOf(false)
-    val isFirstTime: State<Boolean> = _isFirstTime
-
+    private val _isFirstTime: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isFirstTime: StateFlow<Boolean> get() = _isFirstTime
     init {
         viewModelScope.launch {
             dataStoreRepository.readOnBoardingState().collect { completed ->
-                _isFirstTime.value = completed
                 if (completed) {
+                    Log.d("is First time", _isFirstTime.value.toString())
                     var user: FirebaseUser? = null
                     viewModelScope.async(IO) {
                         user = getUserUsecase.execute()
                     }.await()
-                    Log.d("inspect splash user", "${user?.uid}")
                     if (user == null) {
                         _startDestination.value = AppRoute.LOGIN.route
                     } else {
                         _startDestination.value = AppRoute.HOME.route
                     }
                 } else {
+                    _isFirstTime.value = true
                     _startDestination.value = AppRoute.WELCOME.route
                     viewModelScope.launch(IO) {
                         fetchGenresFromRemoteUseCase.execute()
